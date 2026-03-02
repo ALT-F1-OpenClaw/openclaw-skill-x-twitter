@@ -8,8 +8,9 @@
  * @see https://www.alt-f1.be
  */
 
-import { readFileSync, statSync } from 'node:fs';
-import { basename } from 'node:path';
+import { readFileSync, statSync, realpathSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
+import { homedir, tmpdir } from 'node:os';
 import { createHmac, randomBytes } from 'node:crypto';
 import { config } from 'dotenv';
 import { Command } from 'commander';
@@ -38,6 +39,53 @@ function env(key) {
     process.exit(1);
   }
   return v;
+}
+
+// ── Path validation (LFI protection) ────────────────────────────────────────
+
+const BLOCKED_SEGMENTS = [
+  '/.ssh/', '/.gnupg/', '/.env', '/.git/config', '/.netrc',
+  '/etc/', '/proc/', '/sys/', '/dev/',
+];
+
+const ALLOWED_MEDIA_EXT = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4']);
+
+function validateFilePath(filePath, { mediaOnly = false } = {}) {
+  const resolved = resolve(filePath);
+
+  // Resolve symlinks to real location
+  let real;
+  try {
+    real = realpathSync(resolved);
+  } catch (e) {
+    if (e.code === 'ENOENT') throw new Error(`File not found: ${filePath}`);
+    throw e;
+  }
+
+  // Must be under home, cwd, or tmp
+  const allowed = [homedir(), process.cwd(), tmpdir()];
+  const isUnderAllowed = allowed.some(base => real.startsWith(base + '/') || real === base);
+  if (!isUnderAllowed) {
+    throw new Error(`Security: file path must be under home, working directory, or tmp — got: ${filePath}`);
+  }
+
+  // Block sensitive paths
+  const lower = real.toLowerCase();
+  for (const seg of BLOCKED_SEGMENTS) {
+    if (lower.includes(seg)) {
+      throw new Error(`Security: access to ${seg.replace(/\//g, '')} paths is blocked — got: ${filePath}`);
+    }
+  }
+
+  // Extension check for media files
+  if (mediaOnly) {
+    const ext = basename(real).toLowerCase().split('.').pop();
+    if (!ALLOWED_MEDIA_EXT.has(ext)) {
+      throw new Error(`Security: invalid media extension '.${ext}' — allowed: ${[...ALLOWED_MEDIA_EXT].join(', ')}`);
+    }
+  }
+
+  return real;
 }
 
 // ── OAuth 1.0a signing ──────────────────────────────────────────────────────
@@ -125,9 +173,10 @@ async function apiRequest(method, url, body = null, useOAuth1 = true) {
 }
 
 async function uploadMedia(filePath) {
+  const safePath = validateFilePath(filePath, { mediaOnly: true });
   const cfg = getCfg();
-  const fileBuffer = readFileSync(filePath);
-  const stat = statSync(filePath);
+  const fileBuffer = readFileSync(safePath);
+  const stat = statSync(safePath);
   const filename = basename(filePath);
 
   if (stat.size > 5 * 1024 * 1024) {
@@ -216,7 +265,8 @@ async function cmdThread(options) {
   let tweets;
 
   if (options.file) {
-    const content = readFileSync(options.file, 'utf-8');
+    const safePath = validateFilePath(options.file);
+    const content = readFileSync(safePath, 'utf-8');
     tweets = content.split(/\n---\n/).map(t => t.trim()).filter(Boolean);
   } else if (options.tweets) {
     tweets = options.tweets;
