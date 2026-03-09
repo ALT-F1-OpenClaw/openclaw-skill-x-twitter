@@ -64,4 +64,4 @@ MIT — see [LICENSE](LICENSE).
 ## Author
 
 **Abdelkrim BOUJRAF**
-[ALT-F1 SRL](https://www.alt-f1.be) — Brussels, Belgium
+[ALT-F1 SRL](https://www.alt-f1.be) — Brussels, Belgium 🇧🇪 🇲🇦
