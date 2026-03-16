@@ -1,6 +1,6 @@
 ---
 name: x-twitter-by-altf1be
-description: "Post tweets, threads, and media to X/Twitter via API v2 — secure OAuth 1.0a, no external npm dependencies."
+description: "Post tweets, threads, and media to X/Twitter via API v2 — secure OAuth 1.0a signing, minimal dependencies (commander + dotenv only)."
 homepage: https://github.com/ALT-F1-OpenClaw/openclaw-skill-x-twitter
 metadata:
   {"openclaw": {"emoji": "🐦", "requires": {"env": ["X_CONSUMER_KEY", "X_CONSUMER_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRET"]}, "primaryEnv": "X_CONSUMER_KEY"}}

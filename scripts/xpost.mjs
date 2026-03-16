@@ -151,14 +151,11 @@ function encodeRFC3986(str) {
 const API_BASE = 'https://api.x.com/2';
 const UPLOAD_BASE = 'https://upload.twitter.com/1.1';
 
-async function apiRequest(method, url, body = null, useOAuth1 = true) {
-  const headers = { 'Content-Type': 'application/json' };
-
-  if (useOAuth1) {
-    headers['Authorization'] = oauthSign(method, url);
-  } else {
-    headers['Authorization'] = `Bearer ${getCfg().bearerToken}`;
-  }
+async function apiRequest(method, url, body = null) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': oauthSign(method, url),
+  };
 
   const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
@@ -334,7 +331,7 @@ const program = new Command();
 program
   .name('xpost')
   .description('OpenClaw X/Twitter Skill — post tweets, threads, and media')
-  .version('0.1.0');
+  .version('1.1.3');
 
 program
   .command('tweet')
