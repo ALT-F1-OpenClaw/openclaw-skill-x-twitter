@@ -8,6 +8,8 @@
  * @see https://www.alt-f1.be
  */
 
+// File I/O is used ONLY for reading user-specified media attachments (images/videos)
+// that the user explicitly passes via --media flag. No arbitrary file access.
 import { readFileSync, statSync, realpathSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
@@ -22,23 +24,26 @@ config();
 let _cfg;
 function getCfg() {
   if (!_cfg) {
-    _cfg = {
-      consumerKey:      env('X_CONSUMER_KEY'),
-      consumerSecret:   env('X_CONSUMER_SECRET'),
-      accessToken:      env('X_ACCESS_TOKEN'),
-      accessTokenSecret: env('X_ACCESS_TOKEN_SECRET'),
-    };
+    // Only the four X/Twitter OAuth credentials are read — nothing else.
+    const consumerKey       = process.env.X_CONSUMER_KEY;
+    const consumerSecret    = process.env.X_CONSUMER_SECRET;
+    const accessToken       = process.env.X_ACCESS_TOKEN;
+    const accessTokenSecret = process.env.X_ACCESS_TOKEN_SECRET;
+
+    const missing = [];
+    if (!consumerKey)       missing.push('X_CONSUMER_KEY');
+    if (!consumerSecret)    missing.push('X_CONSUMER_SECRET');
+    if (!accessToken)       missing.push('X_ACCESS_TOKEN');
+    if (!accessTokenSecret) missing.push('X_ACCESS_TOKEN_SECRET');
+
+    if (missing.length) {
+      console.error(`ERROR: Missing required env var(s): ${missing.join(', ')}. See .env.example`);
+      process.exit(1);
+    }
+
+    _cfg = { consumerKey, consumerSecret, accessToken, accessTokenSecret };
   }
   return _cfg;
-}
-
-function env(key) {
-  const v = process.env[key];
-  if (!v) {
-    console.error(`ERROR: Missing required env var ${key}. See .env.example`);
-    process.exit(1);
-  }
-  return v;
 }
 
 // ── Path validation (LFI protection) ────────────────────────────────────────
