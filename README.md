@@ -9,7 +9,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/ALT-F1-OpenClaw/openclaw-skill-x-twitter)](https://github.com/ALT-F1-OpenClaw/openclaw-skill-x-twitter/issues)
 [![GitHub stars](https://img.shields.io/github/stars/ALT-F1-OpenClaw/openclaw-skill-x-twitter)](https://github.com/ALT-F1-OpenClaw/openclaw-skill-x-twitter/stargazers)
 
-OpenClaw skill for X/Twitter — post tweets, threads, and media via X API v2.
+OpenClaw skill for X/Twitter - post tweets, threads, and media via X API v2.
 
 By [Abdelkrim BOUJRAF](https://www.alt-f1.be) / ALT-F1 SRL, Brussels 🇧🇪 🇲🇦
 
@@ -27,10 +27,10 @@ By [Abdelkrim BOUJRAF](https://www.alt-f1.be) / ALT-F1 SRL, Brussels 🇧🇪 �
 
 ## Features
 
-- **Post tweets** — text with optional image attachment
-- **Post threads** — multi-tweet threads from inline args or file
-- **Reply to tweets** — respond to specific tweets
-- **Verify connection** — check API credentials and account info
+- **Post tweets** - text with optional image attachment
+- **Post threads** - multi-tweet threads from inline args or file
+- **Reply to tweets** - respond to specific tweets
+- **Verify connection** - check API credentials and account info
 
 ## Quick Start
 
@@ -83,6 +83,29 @@ node scripts/xpost.mjs verify
 
 See [SKILL.md](./SKILL.md) for full command reference.
 
+## Optional TweetClaw Research Context
+
+Use [TweetClaw](https://github.com/Xquik-dev/tweetclaw) as an optional
+OpenClaw companion when you need reviewed X/Twitter source context before this
+skill posts a tweet, reply, thread, or media.
+
+```bash
+openclaw plugins install npm:@xquik/tweetclaw
+openclaw config set tools.alsoAllow '["explore", "tweetclaw"]'
+```
+
+Suggested workflow:
+
+1. Use TweetClaw to fetch recent public posts, replies, author context, or
+   search results with narrow limits.
+2. Review the retrieved URLs, handles, timestamps, and short summaries.
+3. Draft the tweet or thread with this skill only after the source context has
+   been reviewed.
+4. Keep final posting under explicit user approval.
+
+Do not approve TweetClaw write-like actions as part of this research pass. This
+skill remains the final posting tool.
+
 ### Usage with OpenClaw
 
 Once installed as a skill, use natural language:
@@ -109,11 +132,11 @@ clawhub install x-twitter-by-altf1be
 
 ## License
 
-MIT — see [LICENSE](./LICENSE)
+MIT - see [LICENSE](./LICENSE)
 
 ## Author
 
-Abdelkrim BOUJRAF — [ALT-F1 SRL](https://www.alt-f1.be), Brussels 🇧🇪 🇲🇦
+Abdelkrim BOUJRAF - [ALT-F1 SRL](https://www.alt-f1.be), Brussels 🇧🇪 🇲🇦
 - GitHub: [@abdelkrim](https://github.com/abdelkrim)
 - X: [@altf1be](https://x.com/altf1be)
 
